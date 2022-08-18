@@ -1,4 +1,4 @@
-package simple.compose.calculator; /**
+package simple.compose.other; /**
  * <pre>
  * 完整版的逆波兰计算器，功能包括
  * 支持 + - * / ( )
@@ -217,7 +217,8 @@ public class ReversePolishMultiCalc {
 
     public static void main(String[] args) {
         //String math = "9+(3-1)*3+10/2";
-        String math = "12.8 + (2 - 3.55)*4+10/5.0";
+//        String math = "12.8 + (2 - 3.55)*4+10/5.0";
+        String math = "1+2*6-68+368";
         try {
             doCalc(doMatch(math));
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package simple.compose.calculator
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.*
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Stack
 
 class MainActivity : ComponentActivity() {
@@ -33,7 +35,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        testCalc()
+//        testCalc()
 
         setContent {
             val isDarkModel by remember { mutableStateOf(false) }
@@ -54,6 +56,8 @@ class MainActivity : ComponentActivity() {
         inputStack.push("5")
         inputStack.push(MUL)
         inputStack.push("2")
+        inputStack.push(DIV)
+        inputStack.push("0")
         convertToInfix()
     }
 
@@ -87,7 +91,7 @@ class MainActivity : ComponentActivity() {
         val numBtnColor = MaterialTheme.colorScheme.tertiary
         Column(modifier) {
             Row() {
-                ButtonUI(Modifier.weight(1f), text = "theme", textColor = optBtnColor) {
+                ButtonUI(Modifier.weight(1f), text = "", textColor = optBtnColor) {
 
                 }
                 ButtonUI(Modifier.weight(1f), text = "AC", textColor = optBtnColor) {
@@ -224,25 +228,29 @@ class MainActivity : ComponentActivity() {
         Log.d("SimplePeng", msg)
     }
 
+    //转换为后缀表达式
     private fun convertToSuffix() {
         suffixStack.clear()
-        val operatorStack = Stack<String>()
+        val operatorStack = Stack<String>()//计算符号的栈
 
         for (item in infixStack) {
-            if (isOperator(item)) {
+            if (isOperator(item)) {//如果是计算符号
                 if (operatorStack.isEmpty()) {
                     operatorStack.push(item)
                     continue
                 }
                 while (operatorStack.isNotEmpty()) {
-                    if (highPriority(item, operatorStack.last())) {
+                    if (highPriority(item, operatorStack.last())) {//如果当前的计算符比栈顶的大，入栈
                         operatorStack.push(item)
                         break
                     }
                     val top = operatorStack.pop()
                     suffixStack.push(top)
                 }
-            } else {
+                if (operatorStack.isEmpty()) {
+                    operatorStack.push(item)
+                }
+            } else {//如果是数字
                 suffixStack.push(item)
             }
         }
@@ -270,10 +278,12 @@ class MainActivity : ComponentActivity() {
 
         for (item in suffixStack) {
             if (isOperator(item)) {
-                val one = numStack.pop()
-                val two = numStack.pop()
-                val tmpResult = calc(one, two, item)
-                numStack.push(tmpResult)
+                if (numStack.size > 1) {
+                    val one = numStack.pop()
+                    val two = numStack.pop()
+                    val tmpResult = calc(one, two, item)
+                    numStack.push(tmpResult)
+                }
             } else {
                 numStack.push(item.toBigDecimal())
             }
@@ -292,12 +302,22 @@ class MainActivity : ComponentActivity() {
             ADD -> two.add(one)
             SUB -> two.subtract(one)
             MUL -> two.multiply(one)
-            DIV -> two.divide(one)
+            DIV -> {
+                if (one == BigDecimal(0)) {
+                    showToast("不能除以0")
+                    return BigDecimal(1)
+                }
+                two.divide(one, RoundingMode.HALF_UP)
+            }
             else -> {
                 debugLog("哪里来的操作符？")
                 BigDecimal(1)
             }
         }
+    }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }
 
