@@ -12,16 +12,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.*
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
+import java.math.BigDecimal
 import java.util.Stack
 
 class MainActivity : ComponentActivity() {
 
-    private val inputStack = Stack<Item>()
-    private val infixStack = Stack<Item>()
-    private val suffixStack = Stack<Item>()
+    companion object {
+        private const val ADD = "+"
+        private const val SUB = "-"
+        private const val MUL = "*"
+        private const val DIV = "/"
+    }
+
+    private val inputStack = Stack<String>()
+    private val infixStack = Stack<String>()
+    private val suffixStack = Stack<String>()
+
+    private val operatorSet = hashSetOf(ADD, SUB, MUL, DIV)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        testCalc()
+
         setContent {
             val isDarkModel by remember { mutableStateOf(false) }
 
@@ -29,6 +42,19 @@ class MainActivity : ComponentActivity() {
                 CalculatorUI()
             }
         }
+    }
+
+    private fun testCalc() {
+        inputStack.push("1")
+        inputStack.push(ADD)
+        inputStack.push("2")
+        inputStack.push(ADD)
+        inputStack.push("1")
+        inputStack.push(".")
+        inputStack.push("5")
+        inputStack.push(MUL)
+        inputStack.push("2")
+        convertToInfix()
     }
 
     @Composable
@@ -71,61 +97,61 @@ class MainActivity : ComponentActivity() {
                     delItem()
                 }
                 ButtonUI(Modifier.weight(1f), text = "/", textColor = optBtnColor) {
-                    addItem(Item("/", Item.TYPE_SYMBOL))
+                    addItem(DIV)
                 }
             }
             Row() {
                 ButtonUI(Modifier.weight(1f), text = "7", textColor = numBtnColor) {
-                    addItem(Item("7", Item.TYPE_NUM))
+                    addItem("7")
                 }
                 ButtonUI(Modifier.weight(1f), text = "8", textColor = numBtnColor) {
-                    addItem(Item("8", Item.TYPE_NUM))
+                    addItem("8")
                 }
                 ButtonUI(Modifier.weight(1f), text = "9", textColor = numBtnColor) {
-                    addItem(Item("9", Item.TYPE_NUM))
+                    addItem("9")
                 }
                 ButtonUI(Modifier.weight(1f), text = "x", textColor = optBtnColor) {
-                    addItem(Item("*", Item.TYPE_SYMBOL))
+                    addItem(MUL)
                 }
             }
             Row() {
                 ButtonUI(Modifier.weight(1f), text = "4", textColor = numBtnColor) {
-                    addItem(Item("4", Item.TYPE_NUM))
+                    addItem("4")
                 }
                 ButtonUI(Modifier.weight(1f), text = "5", textColor = numBtnColor) {
-                    addItem(Item("5", Item.TYPE_NUM))
+                    addItem("5")
                 }
                 ButtonUI(Modifier.weight(1f), text = "6", textColor = numBtnColor) {
-                    addItem(Item("6", Item.TYPE_NUM))
+                    addItem("6")
                 }
                 ButtonUI(Modifier.weight(1f), text = "-", textColor = optBtnColor) {
-                    addItem(Item("-", Item.TYPE_SYMBOL))
+                    addItem(SUB)
                 }
             }
             Row() {
                 ButtonUI(Modifier.weight(1f), text = "1", textColor = numBtnColor) {
-                    addItem(Item("1", Item.TYPE_NUM))
+                    addItem("1")
                 }
                 ButtonUI(Modifier.weight(1f), text = "2", textColor = numBtnColor) {
-                    addItem(Item("2", Item.TYPE_NUM))
+                    addItem("2")
                 }
                 ButtonUI(Modifier.weight(1f), text = "3", textColor = numBtnColor) {
-                    addItem(Item("3", Item.TYPE_NUM))
+                    addItem("3")
                 }
                 ButtonUI(Modifier.weight(1f), text = "+", textColor = optBtnColor) {
-                    addItem(Item("+", Item.TYPE_SYMBOL))
+                    addItem(ADD)
                 }
             }
             Row() {
                 ButtonUI(Modifier.weight(1f), text = "", textColor = optBtnColor)
                 ButtonUI(Modifier.weight(1f), text = "0", textColor = numBtnColor) {
-                    addItem(Item("0", Item.TYPE_NUM))
+                    addItem("0")
                 }
                 ButtonUI(Modifier.weight(1f), text = ".", textColor = numBtnColor) {
-                    addItem(Item(".", Item.TYPE_NUM))
+                    addItem(".")
                 }
                 ButtonUI(Modifier.weight(1f), text = "=", textColor = optBtnColor) {
-                    calc()
+                    calcResult()
                 }
             }
         }
@@ -146,8 +172,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun addItem(item: Item) {
-        inputStack.add(item)
+    private fun addItem(item: String) {
+        inputStack.push(item)
+        debugLog("items = $inputStack")
+
         convertToInfix()
     }
 
@@ -159,49 +187,115 @@ class MainActivity : ComponentActivity() {
         inputStack.clear()
     }
 
-    private fun calc() {
-
-    }
+    private fun isOperator(item: String) = operatorSet.contains(item)
 
     private fun convertToInfix() {
         infixStack.clear()
         val strBuilder = StringBuilder()
 
         inputStack.forEach { item ->
-            if (item.type == Item.TYPE_SYMBOL) {
+            if (isOperator(item)) {
                 val num = strBuilder.toString()
-                infixStack.add(Item(num, Item.TYPE_NUM))
+                infixStack.push(num)
                 strBuilder.clear()
-                infixStack.add(Item(item.operator, Item.TYPE_SYMBOL))
+                infixStack.push(item)
             } else {
-                strBuilder.append(item.operator)
+                strBuilder.append(item)
             }
         }
+        if (strBuilder.isNotEmpty()) {
+            val num = strBuilder.toString()
+            infixStack.push(num)
+            strBuilder.clear()
+        }
 
-        printStack(infixStack)
+        debugLog("infix = ${stackToString(infixStack)}")
 
         convertToSuffix()
     }
 
-    private fun printStack(stack: Stack<Item>) {
+    private fun stackToString(stack: Stack<String>): String {
         val strBuilder = StringBuilder()
-        stack.forEach { strBuilder.append(it.operator) }
-        logTAG("stack = $strBuilder")
+        stack.forEach { strBuilder.append(it) }
+        return strBuilder.toString()
     }
 
-    private fun logTAG(msg: String) {
+    private fun debugLog(msg: String) {
         Log.d("SimplePeng", msg)
     }
 
-    private fun convertToSuffix(){
+    private fun convertToSuffix() {
         suffixStack.clear()
-        val tmpStack = Stack<Item>()
+        val operatorStack = Stack<String>()
 
-        infixStack.forEach { item ->
-            if (item.type == Item.TYPE_SYMBOL){
-                tmpStack.add(item)
-            }else{
-                suffixStack.add(item)
+        for (item in infixStack) {
+            if (isOperator(item)) {
+                if (operatorStack.isEmpty()) {
+                    operatorStack.push(item)
+                    continue
+                }
+                while (operatorStack.isNotEmpty()) {
+                    if (highPriority(item, operatorStack.last())) {
+                        operatorStack.push(item)
+                        break
+                    }
+                    val top = operatorStack.pop()
+                    suffixStack.push(top)
+                }
+            } else {
+                suffixStack.push(item)
+            }
+        }
+        if (operatorStack.isNotEmpty()) {
+            suffixStack.addAll(operatorStack.reversed())
+            operatorStack.clear()
+        }
+
+        debugLog("suffix = $suffixStack")
+
+        calcResult()
+    }
+
+    private fun highPriority(
+        wait: String,
+        top: String,
+    ): Boolean {
+        return (wait == MUL || wait == DIV) && (top == ADD || top == SUB)
+    }
+
+    private fun calcResult() {
+        if (suffixStack.isEmpty()) return
+
+        val numStack = Stack<BigDecimal>()
+
+        for (item in suffixStack) {
+            if (isOperator(item)) {
+                val one = numStack.pop()
+                val two = numStack.pop()
+                val tmpResult = calc(one, two, item)
+                numStack.push(tmpResult)
+            } else {
+                numStack.push(item.toBigDecimal())
+            }
+        }
+
+        val result = numStack.pop()
+        debugLog("result = $result")
+    }
+
+    private fun calc(
+        one: BigDecimal,
+        two: BigDecimal,
+        operator: String
+    ): BigDecimal {
+        return when (operator) {
+            ADD -> two.add(one)
+            SUB -> two.subtract(one)
+            MUL -> two.multiply(one)
+            DIV -> two.divide(one)
+            else -> {
+                debugLog("哪里来的操作符？")
+                BigDecimal(1)
             }
         }
     }
