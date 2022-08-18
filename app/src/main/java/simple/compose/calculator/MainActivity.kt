@@ -7,10 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
 import java.math.BigDecimal
@@ -32,10 +35,13 @@ class MainActivity : ComponentActivity() {
 
     private val operatorSet = hashSetOf(ADD, SUB, MUL, DIV)
 
+    private val items = mutableStateListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 //        testCalc()
+        items.add("HHHHH")
 
         setContent {
             val isDarkModel by remember { mutableStateOf(false) }
@@ -80,8 +86,16 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun DisplayUI(modifier: Modifier) {
-        Column(modifier) {
-
+        LazyColumn(modifier.fillMaxSize()) {
+            items(items = items) { item ->
+                Text(
+                    text = item,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.White,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.End,
+                )
+            }
         }
     }
 
@@ -213,7 +227,9 @@ class MainActivity : ComponentActivity() {
             strBuilder.clear()
         }
 
-        debugLog("infix = ${stackToString(infixStack)}")
+        val text = stackToString(infixStack)
+        debugLog("infix = $text")
+        items.add(text)
 
         convertToSuffix()
     }
