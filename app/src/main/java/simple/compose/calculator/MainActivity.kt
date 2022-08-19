@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
         private const val SUB = "-"
         private const val MUL = "*"
         private const val DIV = "/"
+        private const val DOT = "."
     }
 
     private val inputStack = Stack<String>()
@@ -211,7 +212,7 @@ class MainActivity : ComponentActivity() {
                     addItem("0")
                 }
                 ButtonUI(Modifier.weight(1f), text = ".", textColor = numBtnColor) {
-                    addItem(".")
+                    addItem(DOT)
                 }
                 ButtonUI(Modifier.weight(1f), text = "=", textColor = optBtnColor) {
                     calcResult()
@@ -242,6 +243,17 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addItem(item: String) {
+        if (isOperator(item) && inputStack.isEmpty()) {
+            return
+        }
+
+        if (item == DOT && inputStack.isEmpty()) {
+            return
+        }
+        if (item == DOT && isOperator(inputStack.last())) {
+            return
+        }
+
         if (isOperator(item) && isOperator(inputStack.last())) {
             inputStack.pop()
         }
@@ -253,6 +265,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun delItem() {
+        if (inputStack.isEmpty()) return
         inputStack.pop()
 
         convertToInfix()
@@ -260,6 +273,10 @@ class MainActivity : ComponentActivity() {
 
     private fun acClear() {
         inputStack.clear()
+        infixStack.clear()
+        suffixStack.clear()
+        expText.value = ""
+        resultText.value = ""
     }
 
     private fun isOperator(item: String) = operatorSet.contains(item)
