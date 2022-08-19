@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
@@ -37,6 +39,11 @@ class MainActivity : ComponentActivity() {
 
     private val items = mutableStateListOf<CalcItem>()
 
+    private val isDarkModel = mutableStateOf(false)
+
+    private val expText = mutableStateOf("")
+    private val resultText = mutableStateOf("")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,9 +52,7 @@ class MainActivity : ComponentActivity() {
         items.add(CalcItem("", CalcItem.TYPE_RESULT))
 
         setContent {
-            val isDarkModel by remember { mutableStateOf(false) }
-
-            CalculatorComposeTheme(darkTheme = isDarkModel) {
+            CalculatorComposeTheme() {
                 CalculatorUI()
             }
         }
@@ -71,39 +76,70 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun CalculatorUI() {
         Column {
-            val displayModifier = Modifier
-                .background(Color.Black)
-                .fillMaxWidth()
-                .weight(1f)
-
-            val btnGroupModifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-
-            DisplayUI(displayModifier)
+            DisplayUI(
+                Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
                     .padding(20.dp)
             )
-            ButtonGroup(btnGroupModifier)
+            ButtonGroup(
+                Modifier
+                    .wrapContentHeight()
+                    .background(MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
+            )
         }
     }
 
     @Composable
     fun DisplayUI(modifier: Modifier) {
-        LazyColumn(modifier.fillMaxSize()) {
-            items(items = items) { item ->
-                Text(
-                    text = item.text,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.End,
-                )
+        val textModifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+        val textColor = MaterialTheme.colorScheme.tertiary
+
+        Column(modifier) {
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(items = items) { item ->
+                    Text(
+                        text = item.text,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.White,
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.End,
+                    )
+                }
             }
+            Text(
+                text = expText.value,
+                modifier = textModifier,
+                color = textColor,
+                fontSize = 40.sp,
+                textAlign = TextAlign.End,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 45.sp
+            )
+            Text(
+                text = resultText.value,
+                modifier = textModifier,
+                color = textColor,
+                fontSize = 30.sp,
+                textAlign = TextAlign.End,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 35.sp
+            )
         }
+
     }
 
     @Composable
@@ -190,10 +226,16 @@ class MainActivity : ComponentActivity() {
         onClick: () -> Unit = {}
     ) {
         Button(
-            onClick, modifier.aspectRatio(1f),
+            onClick,
+            modifier.aspectRatio(1f),
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
-            Text(text, color = textColor, fontSize = 20f.sp)
+            Text(
+                text,
+                color = textColor,
+                fontSize = 20f.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 
@@ -236,7 +278,7 @@ class MainActivity : ComponentActivity() {
 
         val text = stackToString(infixStack)
         debugLog("infix = $text")
-        items.lastTwo().text = text
+        expText.value = text
 
         convertToSuffix()
     }
@@ -316,7 +358,8 @@ class MainActivity : ComponentActivity() {
         val result = numStack.pop()
         debugLog("result = $result")
 
-        items.last().text = result.toString()
+//        items.last().text = result.toString()
+        resultText.value = result.toString()
     }
 
     private fun calc(
