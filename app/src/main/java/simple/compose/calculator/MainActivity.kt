@@ -35,13 +35,14 @@ class MainActivity : ComponentActivity() {
 
     private val operatorSet = hashSetOf(ADD, SUB, MUL, DIV)
 
-    private val items = mutableStateListOf<String>()
+    private val items = mutableStateListOf<CalcItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 //        testCalc()
-        items.add("HHHHH")
+        items.add(CalcItem("", CalcItem.TYPE_EXP))
+        items.add(CalcItem("", CalcItem.TYPE_RESULT))
 
         setContent {
             val isDarkModel by remember { mutableStateOf(false) }
@@ -80,6 +81,12 @@ class MainActivity : ComponentActivity() {
                 .fillMaxWidth()
 
             DisplayUI(displayModifier)
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .padding(20.dp)
+            )
             ButtonGroup(btnGroupModifier)
         }
     }
@@ -89,7 +96,7 @@ class MainActivity : ComponentActivity() {
         LazyColumn(modifier.fillMaxSize()) {
             items(items = items) { item ->
                 Text(
-                    text = item,
+                    text = item.text,
                     modifier = Modifier.fillMaxWidth(),
                     color = Color.White,
                     fontSize = 25.sp,
@@ -229,7 +236,7 @@ class MainActivity : ComponentActivity() {
 
         val text = stackToString(infixStack)
         debugLog("infix = $text")
-        items.add(text)
+        items.lastTwo().text = text
 
         convertToSuffix()
     }
@@ -287,6 +294,7 @@ class MainActivity : ComponentActivity() {
         return (wait == MUL || wait == DIV) && (top == ADD || top == SUB)
     }
 
+    //计算结果
     private fun calcResult() {
         if (suffixStack.isEmpty()) return
 
@@ -307,6 +315,8 @@ class MainActivity : ComponentActivity() {
 
         val result = numStack.pop()
         debugLog("result = $result")
+
+        items.last().text = result.toString()
     }
 
     private fun calc(
