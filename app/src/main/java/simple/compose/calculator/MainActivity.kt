@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import com.simple.spiderman.SpiderMan
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
+import java.lang.ArithmeticException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Stack
@@ -248,6 +250,8 @@ class MainActivity : ComponentActivity() {
 
     private fun delItem() {
         inputStack.pop()
+
+        convertToInfix()
     }
 
     private fun acClear() {
@@ -256,6 +260,7 @@ class MainActivity : ComponentActivity() {
 
     private fun isOperator(item: String) = operatorSet.contains(item)
 
+    //转成中缀表达式
     private fun convertToInfix() {
         infixStack.clear()
         val strBuilder = StringBuilder()
@@ -293,7 +298,7 @@ class MainActivity : ComponentActivity() {
         Log.d("SimplePeng", msg)
     }
 
-    //转换为后缀表达式
+    //转成后缀表达式
     private fun convertToSuffix() {
         suffixStack.clear()
         val operatorStack = Stack<String>()//计算符号的栈
@@ -342,24 +347,32 @@ class MainActivity : ComponentActivity() {
 
         val numStack = Stack<BigDecimal>()
 
-        for (item in suffixStack) {
-            if (isOperator(item)) {
-                if (numStack.size > 1) {
-                    val one = numStack.pop()
-                    val two = numStack.pop()
-                    val tmpResult = calc(one, two, item)
-                    numStack.push(tmpResult)
+        try {
+            for (item in suffixStack) {
+                if (isOperator(item)) {
+                    if (numStack.size > 1) {
+                        val one = numStack.pop()
+                        val two = numStack.pop()
+                        val tmpResult = calc(one, two, item)
+                        numStack.push(tmpResult)
+                    }
+                } else {
+                    val num = item.toBigDecimal()
+                    numStack.push(num)
                 }
+            }
+
+            val result = numStack.pop()
+            debugLog("result = $result")
+
+            resultText.value = result.toString()
+        } catch (e: Throwable) {
+            if (e is ArithmeticException && e.message == "Division by zero") {
+                resultText.value = "不能除以0"
             } else {
-                numStack.push(item.toBigDecimal())
+                SpiderMan.show(e)
             }
         }
-
-        val result = numStack.pop()
-        debugLog("result = $result")
-
-//        items.last().text = result.toString()
-        resultText.value = result.toString()
     }
 
     private fun calc(
@@ -372,10 +385,6 @@ class MainActivity : ComponentActivity() {
             SUB -> two.subtract(one)
             MUL -> two.multiply(one)
             DIV -> {
-                if (one == BigDecimal(0)) {
-                    showToast("不能除以0")
-                    return BigDecimal(1)
-                }
                 two.divide(one, RoundingMode.HALF_UP)
             }
             else -> {
@@ -388,5 +397,7 @@ class MainActivity : ComponentActivity() {
     private fun showToast(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
+
+
 }
 
