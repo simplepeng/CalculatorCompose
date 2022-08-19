@@ -364,7 +364,9 @@ class MainActivity : ComponentActivity() {
 
     //计算结果
     private fun calcResult() {
+        if (inputStack.isEmpty()) return
         if (suffixStack.isEmpty()) return
+        if (isOperator(inputStack.last())) return
 
         val numStack = Stack<BigDecimal>()
 
