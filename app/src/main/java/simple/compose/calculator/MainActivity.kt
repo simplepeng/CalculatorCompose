@@ -242,6 +242,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addItem(item: String) {
+        if (isOperator(item) && isOperator(inputStack.last())) {
+            inputStack.pop()
+        }
+
         inputStack.push(item)
         debugLog("items = $inputStack")
 
