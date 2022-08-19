@@ -364,7 +364,7 @@ class MainActivity : ComponentActivity() {
 
     //计算结果
     private fun calcResult() {
-        if (inputStack.isEmpty()) return
+        if (infixStack.size < 2) return
         if (suffixStack.isEmpty()) return
         if (isOperator(inputStack.last())) return
 
@@ -408,7 +408,7 @@ class MainActivity : ComponentActivity() {
             SUB -> two.subtract(one)
             MUL -> two.multiply(one)
             DIV -> {
-                two.divide(one, RoundingMode.HALF_UP)
+                two.divide(one, 1, RoundingMode.HALF_UP)
             }
             else -> {
                 debugLog("哪里来的操作符？")
