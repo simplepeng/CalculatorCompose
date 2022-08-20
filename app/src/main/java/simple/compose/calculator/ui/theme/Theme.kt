@@ -10,38 +10,33 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = darkPrimary,
-    secondary = darkSecondary,
-    tertiary = darkTertiary
+    primary = darkPrimary,//
+    secondary = Color(android.graphics.Color.parseColor("#c1693d")),//计算符号颜色
+    tertiary = Color.White,//数字按钮颜色
+    background = Color.Black,//背景色
+    onBackground = Color.DarkGray,//分割线颜色
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = lightPrimary,
-    secondary = lightSecondary,
-    tertiary = lightTertiary
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = Color(android.graphics.Color.parseColor("#fc7e40")),
+    tertiary = Color.Black,
+    background = Color.White,
+    onBackground = Color.LightGray,
 )
 
 @Composable
 fun CalculatorComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

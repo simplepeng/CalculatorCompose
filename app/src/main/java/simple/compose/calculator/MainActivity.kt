@@ -55,7 +55,6 @@ class MainActivity : ComponentActivity() {
         items.add(CalcItem("", CalcItem.TYPE_RESULT))
 
         setContent {
-            isSystemInDarkTheme()
             CalculatorComposeTheme(darkTheme = isDarkModel.value) {
                 CalculatorUI()
             }
@@ -79,10 +78,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun CalculatorUI() {
-        Column {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             DisplayUI(
                 Modifier
-                    .background(MaterialTheme.colorScheme.background)
                     .fillMaxWidth()
                     .weight(1f)
             )
@@ -90,13 +88,12 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .padding(20.dp)
-                    .background(Color.Black)
+                    .padding(horizontal = 10f.dp)
+                    .background(MaterialTheme.colorScheme.onBackground)
             )
             ButtonGroup(
                 Modifier
                     .wrapContentHeight()
-                    .background(MaterialTheme.colorScheme.background)
                     .fillMaxWidth()
             )
         }
