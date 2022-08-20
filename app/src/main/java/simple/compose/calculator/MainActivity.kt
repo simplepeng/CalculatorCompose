@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import androidx.core.view.WindowCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.simple.spiderman.SpiderMan
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
 import java.lang.ArithmeticException
@@ -51,8 +53,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
 //        testCalc()
-        items.add(CalcItem("", CalcItem.TYPE_EXP))
-        items.add(CalcItem("", CalcItem.TYPE_RESULT))
 
         setContent {
             CalculatorComposeTheme(darkTheme = isDarkModel.value) {

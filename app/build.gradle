@@ -61,4 +61,6 @@ dependencies {
 
     debugImplementation "com.github.simplepeng.SpiderMan:spiderman:$spider_man"
     releaseImplementation "com.github.simplepeng.SpiderMan:spiderman-no-op:$spider_man"
+
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
 }
