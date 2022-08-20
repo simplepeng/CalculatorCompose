@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //测试计算结果
     private fun testCalc() {
         inputStack.push("1")
         inputStack.push(ADD)
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(1.dp)
+                    .height(0.5f.dp)
                     .padding(horizontal = 10f.dp)
                     .background(MaterialTheme.colorScheme.onBackground)
             )
@@ -135,7 +136,7 @@ class MainActivity : ComponentActivity() {
                 text = resultText.value,
                 modifier = textModifier,
                 color = textColor,
-                fontSize = 30.sp,
+                fontSize = 26.sp,
                 textAlign = TextAlign.End,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 35.sp
@@ -228,7 +229,7 @@ class MainActivity : ComponentActivity() {
                     addItem(DOT)
                 }
                 ButtonUI(Modifier.weight(1f), text = "=", textColor = optBtnColor) {
-                    calcResult()
+                    equalBtnClick()
                 }
             }
         }
@@ -284,14 +285,19 @@ class MainActivity : ComponentActivity() {
         convertToInfix()
     }
 
-    private fun acClear() {
+    private fun clearStack() {
         inputStack.clear()
         infixStack.clear()
         suffixStack.clear()
+    }
+
+    private fun acClear() {
+        clearStack()
         expText.value = ""
         resultText.value = ""
     }
 
+    //是否是计算符号
     private fun isOperator(item: String) = operatorSet.contains(item)
 
     //转成中缀表达式
@@ -368,6 +374,7 @@ class MainActivity : ComponentActivity() {
         calcResult()
     }
 
+    //高优先级计算符号
     private fun highPriority(
         wait: String,
         top: String,
@@ -411,6 +418,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //计算
     private fun calc(
         one: BigDecimal,
         two: BigDecimal,
@@ -434,6 +442,11 @@ class MainActivity : ComponentActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-
+    private fun equalBtnClick() {
+        expText.value = resultText.value
+        resultText.value = ""
+        clearStack()
+        addItem(expText.value)
+    }
 }
 
