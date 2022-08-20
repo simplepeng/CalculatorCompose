@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
         items.add(CalcItem("", CalcItem.TYPE_RESULT))
 
         setContent {
-            CalculatorComposeTheme() {
+            isSystemInDarkTheme()
+            CalculatorComposeTheme(darkTheme = isDarkModel.value) {
                 CalculatorUI()
             }
         }
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
                     .fillMaxWidth()
                     .height(1.dp)
                     .padding(20.dp)
+                    .background(Color.Black)
             )
             ButtonGroup(
                 Modifier
@@ -146,13 +148,27 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    fun themeName() = if (isDarkModel.value) "Dark" else "Light"
+
+    @Composable
     fun ButtonGroup(modifier: Modifier) {
         val optBtnColor = MaterialTheme.colorScheme.secondary
         val numBtnColor = MaterialTheme.colorScheme.tertiary
         Column(modifier) {
             Row() {
-                ButtonUI(Modifier.weight(1f), text = "", textColor = optBtnColor) {
-
+                Button(
+                    onClick = { isDarkModel.value = !isDarkModel.value },
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(1f),
+                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                ) {
+                    Text(
+                        themeName(),
+                        color = optBtnColor,
+                        fontSize = 17f.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
                 ButtonUI(Modifier.weight(1f), text = "AC", textColor = optBtnColor) {
                     acClear()
