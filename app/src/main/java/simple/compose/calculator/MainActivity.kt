@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -109,19 +110,17 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun LandscapeUI() {
-        Row(Modifier.background(Color.Red)) {
-//            DisplayUI(
-//                Modifier
-//                    .fillMaxHeight()
-//                    .weight(1f)
-//                    .background(Color.Black)
-//            )
+        Row(Modifier.background(MaterialTheme.colorScheme.background)) {
+            DisplayUI(
+                Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+            )
             Spacer(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .height(0.5f.dp)
+                    .width(0.5f.dp)
                     .padding(horizontal = 10f.dp)
-                    .background(MaterialTheme.colorScheme.onBackground)
             )
             ButtonGroup(
                 Modifier
@@ -183,6 +182,7 @@ class MainActivity : ComponentActivity() {
     fun ButtonGroup(
         modifier: Modifier
     ) {
+
         val optBtnColor = MaterialTheme.colorScheme.secondary
         val numBtnColor = MaterialTheme.colorScheme.tertiary
 
