@@ -1,5 +1,6 @@
 package simple.compose.calculator
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -49,6 +50,8 @@ class MainActivity : ComponentActivity() {
     private val expText = mutableStateOf("")
     private val resultText = mutableStateOf("")
 
+    private val orientation by lazy { mutableStateOf(resources.configuration.orientation) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,7 +59,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CalculatorComposeTheme(darkTheme = isDarkModel.value) {
-                CalculatorUI()
+                if (orientation.value == Configuration.ORIENTATION_PORTRAIT) {
+                    PortraitUI()
+                } else {
+                    LandscapeUI()
+                }
             }
         }
     }
@@ -78,7 +85,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun CalculatorUI() {
+    fun PortraitUI() {
         Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             DisplayUI(
                 Modifier
@@ -95,7 +102,31 @@ class MainActivity : ComponentActivity() {
             ButtonGroup(
                 Modifier
                     .wrapContentHeight()
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+            )
+        }
+    }
+
+    @Composable
+    fun LandscapeUI() {
+        Row(Modifier.background(Color.Red)) {
+//            DisplayUI(
+//                Modifier
+//                    .fillMaxHeight()
+//                    .weight(1f)
+//                    .background(Color.Black)
+//            )
+            Spacer(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .height(0.5f.dp)
+                    .padding(horizontal = 10f.dp)
+                    .background(MaterialTheme.colorScheme.onBackground)
+            )
+            ButtonGroup(
+                Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f),
             )
         }
     }
@@ -149,9 +180,12 @@ class MainActivity : ComponentActivity() {
     fun themeName() = if (isDarkModel.value) "Dark" else "Light"
 
     @Composable
-    fun ButtonGroup(modifier: Modifier) {
+    fun ButtonGroup(
+        modifier: Modifier
+    ) {
         val optBtnColor = MaterialTheme.colorScheme.secondary
         val numBtnColor = MaterialTheme.colorScheme.tertiary
+
         Column(modifier) {
             Row() {
                 Button(
@@ -447,6 +481,16 @@ class MainActivity : ComponentActivity() {
         resultText.value = ""
         clearStack()
         addItem(expText.value)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            debugLog("ORIENTATION_PORTRAIT")
+        } else {
+            debugLog("ORIENTATION_LANDSCAPE")
+        }
+        orientation.value = newConfig.orientation
     }
 }
 
