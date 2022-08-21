@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
     private val operatorSet = hashSetOf(ADD, SUB, MUL, DIV)
 
-    private val items = mutableStateListOf<CalcItem>()
+    private val resultItems = mutableStateListOf<String>()
 
     private val isDarkModel = mutableStateOf(false)
 
@@ -142,14 +142,17 @@ class MainActivity : ComponentActivity() {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Bottom
             ) {
-                items(items = items) { item ->
+                items(items = resultItems) { item ->
                     Text(
-                        text = item.text,
-                        modifier = Modifier.fillMaxWidth(),
-                        color = Color.White,
-                        fontSize = 25.sp,
+                        text = item,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        color = Color.LightGray,
+                        fontSize = 20.sp,
                         textAlign = TextAlign.End,
                     )
                 }
@@ -433,10 +436,16 @@ class MainActivity : ComponentActivity() {
 
         try {
             for (item in suffixStack) {
+                if (item.isEmpty()) continue
                 if (isOperator(item)) {
                     if (numStack.size > 1) {
                         val one = numStack.pop()
                         val two = numStack.pop()
+
+                        if (item == DIV && one == BigDecimal.ZERO) {
+                            throw DivZeroException()
+                        }
+
                         val tmpResult = calc(one, two, item)
                         numStack.push(tmpResult)
                     }
@@ -451,7 +460,9 @@ class MainActivity : ComponentActivity() {
 
             resultText.value = result.toString()
         } catch (e: Throwable) {
-            if (e is ArithmeticException && e.message == "Division by zero") {
+            if (e is DivZeroException) {
+                resultText.value = "不能除以0"
+            } else if (e is ArithmeticException && (e.message == "Division by zero" || e.message == "divide by zero")) {
                 resultText.value = "不能除以0"
             } else {
                 SpiderMan.show(e)
@@ -484,6 +495,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun equalBtnClick() {
+        val resultExp = String.format("%s=%s", expText.value, resultText.value)
+        resultItems.add(resultExp)
+
         expText.value = resultText.value
         resultText.value = ""
         clearStack()
