@@ -9,7 +9,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simple.spiderman.SpiderMan
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import simple.compose.calculator.ui.theme.CalculatorComposeTheme
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -61,10 +66,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CalculatorComposeTheme(darkTheme = isDarkModel.value) {
+                val listState = rememberLazyListState()
+
                 if (orientation.value == Configuration.ORIENTATION_PORTRAIT) {
-                    PortraitUI()
+                    PortraitUI(listState)
                 } else {
-                    LandscapeUI()
+                    LandscapeUI(listState)
                 }
             }
         }
@@ -87,12 +94,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun PortraitUI() {
+    fun PortraitUI(listState: LazyListState) {
         Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             DisplayUI(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                listState,
             )
             Spacer(
                 modifier = Modifier
@@ -105,17 +113,19 @@ class MainActivity : ComponentActivity() {
                 Modifier
                     .wrapContentHeight()
                     .fillMaxWidth(),
+                listState,
             )
         }
     }
 
     @Composable
-    fun LandscapeUI() {
+    fun LandscapeUI(listState: LazyListState) {
         Row(Modifier.background(MaterialTheme.colorScheme.background)) {
             DisplayUI(
                 Modifier
                     .fillMaxHeight()
-                    .weight(1f)
+                    .weight(1f),
+                listState
             )
             Spacer(
                 modifier = Modifier
@@ -127,12 +137,16 @@ class MainActivity : ComponentActivity() {
                 Modifier
                     .fillMaxHeight()
                     .aspectRatio(1f),
+                listState
             )
         }
     }
 
     @Composable
-    fun DisplayUI(modifier: Modifier) {
+    fun DisplayUI(
+        modifier: Modifier,
+        listState: LazyListState
+    ) {
         val textModifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
@@ -140,9 +154,10 @@ class MainActivity : ComponentActivity() {
 
         Column(modifier) {
             LazyColumn(
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
+                state = listState,
                 verticalArrangement = Arrangement.Bottom
             ) {
                 items(items = resultItems) { item ->
@@ -184,8 +199,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ButtonGroup(
-        modifier: Modifier
+        modifier: Modifier,
+        listState: LazyListState
     ) {
+        val coroutineScope = rememberCoroutineScope()
 
         val optBtnColor = MaterialTheme.colorScheme.secondary
         val numBtnColor = MaterialTheme.colorScheme.tertiary
@@ -273,7 +290,7 @@ class MainActivity : ComponentActivity() {
                     addItem(DOT)
                 }
                 ButtonUI(Modifier.weight(1f), text = "=", textColor = optBtnColor) {
-                    equalBtnClick()
+                    equalBtnClick(listState, coroutineScope)
                 }
             }
         }
@@ -494,7 +511,7 @@ class MainActivity : ComponentActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun equalBtnClick() {
+    private fun equalBtnClick(listState: LazyListState, coroutineScope: CoroutineScope) {
         val resultExp = String.format("%s=%s", expText.value, resultText.value)
         resultItems.add(resultExp)
 
@@ -502,6 +519,10 @@ class MainActivity : ComponentActivity() {
         resultText.value = ""
         clearStack()
         addItem(expText.value)
+
+        coroutineScope.launch {
+            listState.animateScrollToItem(resultItems.lastIndex)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
