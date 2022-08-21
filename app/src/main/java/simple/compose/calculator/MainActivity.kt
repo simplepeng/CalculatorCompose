@@ -6,12 +6,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -187,7 +186,13 @@ class MainActivity : ComponentActivity() {
         val numBtnColor = MaterialTheme.colorScheme.tertiary
 
         Column(modifier) {
-            Row() {
+            val rowModifier = if (orientation.value == Configuration.ORIENTATION_LANDSCAPE) {
+                Modifier.weight(1f)
+            } else {
+                Modifier.fillMaxWidth()
+            }
+
+            Row(rowModifier) {
                 Button(
                     onClick = { isDarkModel.value = !isDarkModel.value },
                     modifier = Modifier
@@ -212,7 +217,7 @@ class MainActivity : ComponentActivity() {
                     addItem(DIV)
                 }
             }
-            Row() {
+            Row(rowModifier) {
                 ButtonUI(Modifier.weight(1f), text = "7", textColor = numBtnColor) {
                     addItem("7")
                 }
@@ -226,7 +231,7 @@ class MainActivity : ComponentActivity() {
                     addItem(MUL)
                 }
             }
-            Row() {
+            Row(rowModifier) {
                 ButtonUI(Modifier.weight(1f), text = "4", textColor = numBtnColor) {
                     addItem("4")
                 }
@@ -240,7 +245,7 @@ class MainActivity : ComponentActivity() {
                     addItem(SUB)
                 }
             }
-            Row() {
+            Row(rowModifier) {
                 ButtonUI(Modifier.weight(1f), text = "1", textColor = numBtnColor) {
                     addItem("1")
                 }
@@ -254,7 +259,7 @@ class MainActivity : ComponentActivity() {
                     addItem(ADD)
                 }
             }
-            Row() {
+            Row(rowModifier) {
                 ButtonUI(Modifier.weight(1f), text = "", textColor = optBtnColor)
                 ButtonUI(Modifier.weight(1f), text = "0", textColor = numBtnColor) {
                     addItem("0")
@@ -485,11 +490,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            debugLog("ORIENTATION_PORTRAIT")
-        } else {
-            debugLog("ORIENTATION_LANDSCAPE")
-        }
         orientation.value = newConfig.orientation
     }
 }
