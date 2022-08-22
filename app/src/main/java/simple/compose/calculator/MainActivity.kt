@@ -318,18 +318,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addItem(item: String) {
-        if (isOperator(item) && inputStack.isEmpty()) {
+
+        //如果是小数点 and (输入栈为空 or 上一个输入是计算符 or 上一个输入也是小数点)
+        if (item == DOT && (inputStack.isEmpty() || isOperator(inputStack.last()) || inputStack.last() == DOT)) {
             return
         }
 
-        if (item == DOT && inputStack.isEmpty()) {
+        if (isOperator(item) && inputStack.isEmpty()) {//输入的是计算符 and 输入栈为空
             return
         }
-        if (item == DOT && isOperator(inputStack.last())) {
-            return
-        }
-
-        if (isOperator(item) && isOperator(inputStack.last())) {
+        if (isOperator(item) && isOperator(inputStack.last())) {//输入的是计算符 and 上一个输入的也是计算符
             inputStack.pop()
         }
 
