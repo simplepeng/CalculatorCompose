@@ -317,10 +317,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun reversHasDot(): Boolean {
+        if (inputStack.isEmpty()) return false
+
+        val lastIndex = inputStack.lastIndex
+        for (i in lastIndex downTo 0) {
+            val item = inputStack[i]
+            if (isOperator(item)) return false
+            if (item == DOT) return true
+        }
+        return false
+    }
+
     private fun addItem(item: String) {
 
         //如果是小数点 and (输入栈为空 or 上一个输入是计算符 or 上一个输入也是小数点)
         if (item == DOT && (inputStack.isEmpty() || isOperator(inputStack.last()) || inputStack.last() == DOT)) {
+            return
+        }
+        if (item == DOT && reversHasDot()) {
             return
         }
 
