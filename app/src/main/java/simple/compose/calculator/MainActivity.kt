@@ -356,6 +356,7 @@ class MainActivity : ComponentActivity() {
         clearStack()
         expText.value = ""
         resultText.value = ""
+        resultItems.clear()
     }
 
     //是否是计算符号
