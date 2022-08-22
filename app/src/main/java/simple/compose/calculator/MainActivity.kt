@@ -225,7 +225,7 @@ class MainActivity : ComponentActivity() {
                     Text(
                         themeName(),
                         color = optBtnColor,
-                        fontSize = 17f.sp,
+                        fontSize = 15f.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
